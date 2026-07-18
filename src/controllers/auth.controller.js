@@ -229,29 +229,23 @@ const logoutController = async (req, res) => {
 
 const completeProfileController = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user._id
 
-    const {
-      fullName,
-      mobileNumber,
-      dateOfBirth,
-      gender,
-    } = req.body;
+    const { fullName, mobileNumber, dateOfBirth, gender } = req.body
 
-    const location = JSON.parse(req.body.location);
-    const education = JSON.parse(req.body.education);
-    const emergencyContact = JSON.parse(req.body.emergencyContact);
-    const preferences = JSON.parse(req.body.preferences);
-    console.log(education);
-    
+    const location = JSON.parse(req.body.location)
+    const education = JSON.parse(req.body.education)
+    const emergencyContact = JSON.parse(req.body.emergencyContact)
+    const preferences = JSON.parse(req.body.preferences)
+    console.log(education)
 
     // Check if user exists
-    const existingUser = await UserModel.findById(userId);
+    const existingUser = await UserModel.findById(userId)
 
     if (!existingUser) {
       return res.status(404).json({
         message: "User not found",
-      });
+      })
     }
 
     // Data to update
@@ -265,45 +259,37 @@ const completeProfileController = async (req, res) => {
       emergencyContact,
       preferences,
       profileCompleted: true,
-    };
+    }
 
     // Upload new image only if user selected one
     if (req.file) {
-      const uploadedImage = await sendFilesToStorage(
-        req.file.buffer,
-        req.file.originalname
-      );
+      const uploadedImage = await sendFilesToStorage(req.file.buffer, req.file.originalname)
 
       updateData.profileImage = {
         url: uploadedImage.url,
         fileId: uploadedImage.fileId,
-      };
+      }
     }
 
-    const updatedUser = await UserModel.findByIdAndUpdate(
-      userId,
-      updateData,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const updatedUser = await UserModel.findByIdAndUpdate(userId, updateData, {
+      new: true,
+      runValidators: true,
+    })
 
     return res.status(200).json({
       message: existingUser.profileCompleted
         ? "Profile updated successfully."
         : "Profile completed successfully.",
       user: updatedUser,
-    });
-
+    })
   } catch (error) {
-    console.error(error);
+    console.error(error)
 
     return res.status(500).json({
       message: "Internal server error",
-    });
+    })
   }
-};
+}
 
 const forgotPasswordController = async (req, res) => {
   try {
@@ -356,70 +342,63 @@ const forgotPasswordController = async (req, res) => {
 }
 
 const verifyResetTokenController = async (req, res) => {
-    try {
+  try {
+    const { token } = req.params
 
-        const { token } = req.params;
-
-        if (!token) {
-            return res.status(400).json({
-                valid: false,
-                message: "Token is required"
-            });
-        }
-
-        const decoded = jwt.verify(
-            token,
-            process.env.JWT_RAW_SECRET
-        );
-
-        return res.status(200).json({
-            valid: true,
-            userId: decoded.id
-        });
-
-    } catch (err) {
-
-        return res.status(401).json({
-            valid: false,
-            message: "Reset link has expired or is invalid"
-        });
-
+    if (!token) {
+      return res.status(400).json({
+        valid: false,
+        message: "Token is required",
+      })
     }
-};
+
+    const decoded = jwt.verify(token, process.env.JWT_RAW_SECRET)
+
+    return res.status(200).json({
+      valid: true,
+      userId: decoded.id,
+    })
+  } catch (err) {
+    return res.status(401).json({
+      valid: false,
+      message: "Reset link has expired or is invalid",
+    })
+  }
+}
 
 const updatePasswordController = async (req, res) => {
   try {
-    const { password, confirmPassword, token } = req.body;
+    const { password, confirmPassword, token } = req.body
 
     if (!token) {
       return res.status(400).json({
         message: "Token is required",
-      });
+      })
     }
 
     if (!password || !confirmPassword) {
       return res.status(400).json({
         message: "All fields are required",
-      });
+      })
     }
 
     if (password !== confirmPassword) {
       return res.status(400).json({
         message: "Passwords do not match",
-      });
+      })
     }
 
-    let decoded;
+    let decoded
 
     try {
-      decoded = jwt.verify(token, process.env.JWT_RAW_SECRET);
+      decoded = jwt.verify(token, process.env.JWT_RAW_SECRET)
     } catch (err) {
       return res.status(401).json({
         message: "Invalid or expired reset link",
-      });
+      })
     }
 
-    const hashPass = await bcrypt.hash(password, 11);
+    const hashPass = await bcrypt.hash(password, 11)
 
     const updatedPassUser = await UserModel.findByIdAndUpdate(
       decoded.id,
@@ -429,30 +408,30 @@ const updatePasswordController = async (req, res) => {
       {
         new: true,
       }
-    );
+    )
 
     if (!updatedPassUser) {
       return res.status(404).json({
         message: "User not found",
-      });
+      })
     }
 
     await emailQueue.add("password-updated", {
       email: updatedPassUser.email,
       name: updatedPassUser.fullName,
-    });
+    })
 
     return res.status(200).json({
       message: "Password updated successfully!",
-    });
+    })
   } catch (error) {
-    console.error(error);
+    console.error(error)
 
     return res.status(500).json({
       message: "Internal server error",
-    });
+    })
   }
-};
+}
 
 const getProfileController = async (req, res) => {
   try {
@@ -484,7 +463,7 @@ const googleController = async (req, res) => {
         profileImage: {
           url: profile.photos[0].value || "",
           fileId: "",
-        }
+        },
       })
     }
 
