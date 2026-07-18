@@ -7,6 +7,7 @@ const connectDB = require("./src/config/database/db")
 const ejs = require("ejs")
 const cacheInstance = require("./src/services/cache.service")
 const authRoutes=require("./src/routes/auth.routes")
+const disasterRoutes=require("./src/routes/disaster.routes")
 
 require("./src/services/googleOauth.service")
 const session = require("express-session")
@@ -77,6 +78,7 @@ cacheInstance.on("error", (error) => {
 })
 
 app.use("/api/auth", authRoutes);
+app.use("/api/disasters", disasterRoutes);
 
 let port = process.env.PORT || 5000
 
