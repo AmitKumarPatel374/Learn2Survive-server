@@ -8,6 +8,7 @@ const ejs = require("ejs")
 const cacheInstance = require("./src/services/cache.service")
 const authRoutes=require("./src/routes/auth.routes")
 const disasterRoutes=require("./src/routes/disaster.routes")
+const quizRoutes=require("./src/routes/quiz.routes")
 
 require("./src/services/googleOauth.service")
 const session = require("express-session")
@@ -79,6 +80,7 @@ cacheInstance.on("error", (error) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/disasters", disasterRoutes);
+app.use("/api/quiz", quizRoutes);
 
 let port = process.env.PORT || 5000
 

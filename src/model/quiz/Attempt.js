@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose')
 
 const attemptSchema = new mongoose.Schema(
   {
@@ -60,4 +60,4 @@ const attemptSchema = new mongoose.Schema(
 
 const Attempt = mongoose.model("Attempt", attemptSchema);
 
-export default Attempt;
+module.exports=Attempt;
