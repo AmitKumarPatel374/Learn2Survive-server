@@ -33,6 +33,11 @@ const studentAnswerSchema = new mongoose.Schema(
   }
 );
 
+studentAnswerSchema.index(
+  { attemptId: 1, questionId: 1 },
+  { unique: true }
+);
+
 const StudentAnswer = mongoose.model(
   "StudentAnswer",
   studentAnswerSchema
