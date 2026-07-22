@@ -33,6 +33,38 @@ const getQuizzes = async (req, res) => {
     })
   }
 }
+const getQuizById = async (req, res) => {
+  try {
+    const { quizId } = req.params
+    console.log(quizId)
+
+    const quiz = await Quiz.findById(quizId).populate({
+      path: "disasterId",
+      select: "title",
+    })
+
+    console.log(quiz);
+
+    if (!quiz) {
+      return res.status(404).json({
+        success: false,
+        message: "Quiz not found.",
+      })
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: quiz,
+    })
+  } catch (error) {
+    console.error("Get Quiz Error:", error)
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch quiz.",
+    })
+  }
+}
 
 const startQuiz = async (req, res) => {
   try {
@@ -70,6 +102,7 @@ const startQuiz = async (req, res) => {
       quizId,
       totalQuestions: quiz.totalQuestions,
       status: "In Progress",
+      remainingTime: quiz.duration * 60,
     })
 
     return res.status(201).json({
@@ -108,6 +141,13 @@ const getQuizAttempt = async (req, res) => {
     // Quiz details
     const quiz = await Quiz.findById(attempt.quizId)
 
+    if (!quiz) {
+      return res.status(404).json({
+        success: false,
+        message: "Quiz not found.",
+      })
+    }
+
     // Questions (Hide answers)
     const questions = await Question.find(
       { quizId: attempt.quizId },
@@ -129,6 +169,7 @@ const getQuizAttempt = async (req, res) => {
         quiz,
         questions,
         answers,
+        remainingTime: attempt.remainingTime,
       },
     })
   } catch (error) {
@@ -173,7 +214,7 @@ const saveAnswer = async (req, res) => {
 
     const isCorrect = question.correctAnswer === selectedAnswer
 
-    // Insert or Update Answer
+    // Save or Update Answer
     await StudentAnswer.findOneAndUpdate(
       {
         attemptId,
@@ -189,9 +230,26 @@ const saveAnswer = async (req, res) => {
       }
     )
 
+    // Count answered questions
+    const answeredQuestions = await StudentAnswer.countDocuments({
+      attemptId,
+    })
+
+    // Update attempt
+    attempt.answeredQuestions = answeredQuestions
+
+    await attempt.save()
+
     return res.status(200).json({
       success: true,
       message: "Answer saved successfully.",
+      data: {
+        answeredQuestions,
+        totalQuestions: attempt.totalQuestions,
+        progress: Math.round(
+          (answeredQuestions / attempt.totalQuestions) * 100
+        ),
+      },
     })
   } catch (error) {
     console.error("Save Answer Error:", error)
@@ -235,13 +293,26 @@ const submitQuiz = async (req, res) => {
 
     // Percentage
     const percentage =
-      totalQuestions === 0 ? 0 : Number(((correctAnswers / totalQuestions) * 100).toFixed(2))
+      totalQuestions === 0
+        ? 0
+        : Number(
+            ((correctAnswers / totalQuestions) * 100).toFixed(2)
+          )
+
+    // Calculate submission time
+    const submittedAt = new Date()
+
+    // Time taken in seconds
+    const timeTaken = Math.floor(
+      (submittedAt.getTime() - attempt.startedAt.getTime()) / 1000
+    )
 
     // Update Attempt
     attempt.score = correctAnswers
     attempt.percentage = percentage
     attempt.status = "Completed"
-    attempt.submittedAt = new Date()
+    attempt.submittedAt = submittedAt
+    attempt.timeTaken = timeTaken
 
     await attempt.save()
 
@@ -252,6 +323,7 @@ const submitQuiz = async (req, res) => {
         score: correctAnswers,
         totalQuestions,
         percentage,
+        timeTaken,
       },
     })
   } catch (error) {
@@ -319,6 +391,7 @@ const getQuizResult = async (req, res) => {
         quiz,
         score: attempt.score,
         percentage: attempt.percentage,
+        timeTaken: attempt.timeTaken,
         submittedAt: attempt.submittedAt,
         questions: result,
       },
@@ -345,20 +418,21 @@ const getQuizHistory = async (req, res) => {
       .sort({ createdAt: -1 })
 
     const history = attempts.map((attempt) => ({
-      attemptId: attempt._id,
-      quizId: attempt.quizId?._id,
-      title: attempt.quizId?.title,
-      description: attempt.quizId?.description,
-      difficulty: attempt.quizId?.difficulty,
-      duration: attempt.quizId?.duration,
-      totalQuestions: attempt.quizId?.totalQuestions,
-      category: attempt.quizId?.category,
-      score: attempt.score,
-      percentage: attempt.percentage,
-      status: attempt.status,
-      startedAt: attempt.createdAt,
-      submittedAt: attempt.submittedAt,
-    }))
+  attemptId: attempt._id,
+  quizId: attempt.quizId?._id,
+  title: attempt.quizId?.title,
+  description: attempt.quizId?.description,
+  difficulty: attempt.quizId?.difficulty,
+  duration: attempt.quizId?.duration,
+  totalQuestions: attempt.totalQuestions,
+  answeredQuestions: attempt.answeredQuestions,
+  category: attempt.quizId?.category,
+  score: attempt.score,
+  percentage: attempt.percentage,
+  status: attempt.status,
+  startedAt: attempt.createdAt,
+  submittedAt: attempt.submittedAt,
+}))
 
     return res.status(200).json({
       success: true,
@@ -628,6 +702,41 @@ const getAttemptDetails = async (req, res) => {
   }
 }
 
+const updateTimer = async (req, res) => {
+  try {
+    const { attemptId } = req.params
+    const { remainingTime } = req.body
+    const userId = req.user._id
+
+    const attempt = await Attempt.findOne({
+      _id: attemptId,
+      userId,
+      status: "In Progress",
+    })
+
+    if (!attempt) {
+      return res.status(404).json({
+        success: false,
+        message: "Attempt not found.",
+      })
+    }
+
+    attempt.remainingTime = remainingTime
+    await attempt.save()
+
+    return res.json({
+      success: true,
+    })
+  } catch (err) {
+    console.error(err)
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update timer.",
+    })
+  }
+}
+
 module.exports = {
   getQuizzes,
   startQuiz,
@@ -639,5 +748,7 @@ module.exports = {
   getQuizAnalytics,
   getQuestionAnalytics,
   getQuizAttempts,
-  getAttemptDetails
+  getAttemptDetails,
+  getQuizById,
+  updateTimer
 }

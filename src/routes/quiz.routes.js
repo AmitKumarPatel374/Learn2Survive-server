@@ -13,21 +13,25 @@ const {
   getQuestionAnalytics,
   getQuizAttempts,
   getAttemptDetails,
+  getQuizById,
+  updateTimer,
 } = require("../controllers/quiz/studentQuiz.controller")
 const router = express.Router()
 
 // Add your authentication/authorization middleware here
 router.get("/", authMiddleware, getQuizzes)
 router.post("/generate-quiz", authMiddleware, generateQuiz)
+router.get("/history", authMiddleware, getQuizHistory)
+router.get("/:quizId", authMiddleware, getQuizById)
 router.post("/:quizId/start", authMiddleware, startQuiz)
+router.post("/:attemptId/timer", authMiddleware, updateTimer)
 router.get("/attempt/:attemptId", authMiddleware, getQuizAttempt)
 router.post("/attempt/:attemptId/save-answer", authMiddleware, saveAnswer)
 router.post("/attempt/:attemptId/submit", authMiddleware, submitQuiz)
 router.get("/attempt/:attemptId/result", authMiddleware, getQuizResult)
-router.get("/history", authMiddleware, getQuizHistory)
 router.get("/quiz/:quizId/analytics", authMiddleware, getQuizAnalytics)
 router.get("/quiz/:quizId/question-analytics", authMiddleware, getQuestionAnalytics)
 router.get("/quiz/:quizId/attempts", authMiddleware, getQuizAttempts)
-router.get("/attempt/:attemptId", authMiddleware, getAttemptDetails)
+router.get("/attempt/:attemptId/review", authMiddleware, getAttemptDetails)
 
 module.exports = router

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose")
 
 const attemptSchema = new mongoose.Schema(
   {
@@ -43,9 +43,24 @@ const attemptSchema = new mongoose.Schema(
       required: true,
     },
 
+    answeredQuestions: {
+      type: Number,
+      default: 0,
+    },
+
     percentage: {
       type: Number,
       default: 0,
+    },
+
+    remainingTime: {
+      type: Number, // seconds
+      default: 0,
+    },
+
+    lastActiveAt: {
+      type: Date,
+      default: Date.now,
     },
 
     timeTaken: {
@@ -56,8 +71,8 @@ const attemptSchema = new mongoose.Schema(
   {
     timestamps: true,
   }
-);
+)
 
-const Attempt = mongoose.model("Attempt", attemptSchema);
+const Attempt = mongoose.model("Attempt", attemptSchema)
 
-module.exports=Attempt;
+module.exports = Attempt
