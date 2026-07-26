@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose")
 
 const emergencyContactSchema = new mongoose.Schema(
   {
@@ -57,6 +57,6 @@ const emergencyContactSchema = new mongoose.Schema(
   {
     timestamps: true,
   }
-);
+)
 
-export default mongoose.model("EmergencyContact", emergencyContactSchema);
+module.exports = mongoose.model("EmergencyContact", emergencyContactSchema)
