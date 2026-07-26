@@ -1,4 +1,6 @@
-const { default: EmergencyContact } = require("../model/emergencyContact/EmergencyContact")
+const State = require("../model/emergencyContact/State")
+const EmergencyContact = require("../model/emergencyContact/EmergencyContact")
+const District = require("../model/emergencyContact/District")
 
 const createEmergencyContact = async (req, res) => {
   try {
@@ -186,37 +188,46 @@ const getDistrictsByState = async (req, res) => {
 
 const getStateEmergencyContacts = async (req, res) => {
   try {
-    const { stateCode } = req.params
+    const { stateCode } = req.params;
 
     const contacts = await EmergencyContact.find({
       stateCode: stateCode.toUpperCase(),
-      district: null,
       isActive: true,
     })
-      .sort({ category: 1, office: 1 })
-      .select("-createdAt -updatedAt -__v")
+      .sort({
+        district: 1,
+        category: 1,
+        office: 1,
+      })
+      .select("-createdAt -updatedAt -__v");
 
     res.status(200).json({
       success: true,
       count: contacts.length,
       data: contacts,
-    })
+    });
   } catch (error) {
     res.status(500).json({
       success: false,
       message: error.message,
-    })
+    });
   }
-}
+};
 
 const getDistrictEmergencyContacts = async (req, res) => {
   try {
     const { stateCode, district } = req.params
 
+    // Escape special regex characters
+    const escapedDistrict = district.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+
     const contacts = await EmergencyContact.find({
       stateCode: stateCode.toUpperCase(),
-      district,
       isActive: true,
+      district: {
+        $regex: `^${escapedDistrict}$`,
+        $options: "i",
+      },
     })
       .sort({ category: 1, office: 1 })
       .select("-createdAt -updatedAt -__v")
@@ -238,32 +249,32 @@ const getCategories = async (req, res) => {
   try {
     const categories = await EmergencyContact.distinct("category", {
       isActive: true,
-    });
+    })
 
-    categories.sort();
+    categories.sort()
 
     res.status(200).json({
       success: true,
       count: categories.length,
       data: categories,
-    });
+    })
   } catch (error) {
     res.status(500).json({
       success: false,
       message: error.message,
-    });
+    })
   }
-};
+}
 
 const searchEmergencyContacts = async (req, res) => {
   try {
-    const { query } = req.query;
+    const { query } = req.query
 
     if (!query || query.trim() === "") {
       return res.status(400).json({
         success: false,
         message: "Search query is required.",
-      });
+      })
     }
 
     const contacts = await EmergencyContact.find({
@@ -300,20 +311,20 @@ const searchEmergencyContacts = async (req, res) => {
           },
         },
       ],
-    }).select("-createdAt -updatedAt -__v");
+    }).select("-createdAt -updatedAt -__v")
 
     res.status(200).json({
       success: true,
       count: contacts.length,
       data: contacts,
-    });
+    })
   } catch (error) {
     res.status(500).json({
       success: false,
       message: error.message,
-    });
+    })
   }
-};
+}
 
 module.exports = {
   createEmergencyContact,
@@ -326,6 +337,5 @@ module.exports = {
   getStateEmergencyContacts,
   getDistrictEmergencyContacts,
   getCategories,
-  searchEmergencyContacts
-  
+  searchEmergencyContacts,
 }
