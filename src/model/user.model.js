@@ -73,6 +73,11 @@ const userSchema = new mongoose.Schema(
       city: String,
 
       pinCode: String,
+      
+      coordinates: {
+        latitude: Number,
+        longitude: Number,
+      },
     },
 
     // Educational Details

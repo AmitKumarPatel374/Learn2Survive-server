@@ -6,6 +6,7 @@ const { getCookieOptions, getClearCookieOptions } = require("../utils/cookie.uti
 const cacheInstance = require("../services/cache.service")
 const sendFilesToStorage = require("../services/storage.service")
 const jwt = require("jsonwebtoken")
+const { getCoordinatesFromLocation } = require("../services/geocoding.service")
 
 const registerController = async (req, res) => {
   try {
@@ -231,13 +232,17 @@ const completeProfileController = async (req, res) => {
   try {
     const userId = req.user._id
 
-    const { fullName, mobileNumber, dateOfBirth, gender } = req.body
+    const {
+      fullName,
+      mobileNumber,
+      dateOfBirth,
+      gender,
+    } = req.body
 
     const location = JSON.parse(req.body.location)
     const education = JSON.parse(req.body.education)
     const emergencyContact = JSON.parse(req.body.emergencyContact)
     const preferences = JSON.parse(req.body.preferences)
-    console.log(education)
 
     // Check if user exists
     const existingUser = await UserModel.findById(userId)
@@ -247,6 +252,17 @@ const completeProfileController = async (req, res) => {
         message: "User not found",
       })
     }
+
+    // Get coordinates from user's location
+    const coordinates = await getCoordinatesFromLocation({
+      city: location.city,
+      state: location.state,
+      pincode: location.pinCode,
+      country: location.country,
+    })
+
+    // Add coordinates to location
+    location.coordinates = coordinates
 
     // Data to update
     const updateData = {
@@ -263,7 +279,10 @@ const completeProfileController = async (req, res) => {
 
     // Upload new image only if user selected one
     if (req.file) {
-      const uploadedImage = await sendFilesToStorage(req.file.buffer, req.file.originalname)
+      const uploadedImage = await sendFilesToStorage(
+        req.file.buffer,
+        req.file.originalname
+      )
 
       updateData.profileImage = {
         url: uploadedImage.url,
@@ -271,10 +290,14 @@ const completeProfileController = async (req, res) => {
       }
     }
 
-    const updatedUser = await UserModel.findByIdAndUpdate(userId, updateData, {
-      new: true,
-      runValidators: true,
-    })
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      userId,
+      updateData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    )
 
     return res.status(200).json({
       message: existingUser.profileCompleted
