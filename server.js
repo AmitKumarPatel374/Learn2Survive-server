@@ -11,6 +11,7 @@ const disasterRoutes=require("./src/routes/disaster.routes")
 const quizRoutes=require("./src/routes/quiz.routes")
 const emergencyContactRoutes=require("./src/routes/emergency.routes")
 const weatherRoutes=require("./src/routes/weather.routes")
+const disasterAlertRoutes=require("./src/routes/disasterAlert.routes")
 
 require("./src/services/googleOauth.service")
 const session = require("express-session")
@@ -85,6 +86,7 @@ app.use("/api/disasters", disasterRoutes);
 app.use("/api/quiz", quizRoutes);
 app.use("/api/emergency", emergencyContactRoutes);
 app.use("/api/weather", weatherRoutes)
+app.use("/api/disaster-alert", disasterAlertRoutes)
 
 let port = process.env.PORT || 5000
 
