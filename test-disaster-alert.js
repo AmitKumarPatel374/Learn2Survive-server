@@ -1,11 +1,23 @@
-const { generateAIResponse } = require("./src/services/ai/gemini.service")
-require("dotenv").config()
-generateAIResponse(
-  "You are Learn2Survive AI. Explain in simple words what a person should do during a flood."
+const {
+  getDisasterSlugFromEvent,
+} = require("./src/utils/disasterClassifier")
+
+console.log(
+  getDisasterSlugFromEvent("Moderate Rain")
 )
-  .then((response) => {
-    console.log("AI ASSISTANT:", response)
-  })
-  .catch((error) => {
-    console.error(error)
-  })
+
+console.log(
+  getDisasterSlugFromEvent("Heavy Rain")
+)
+
+console.log(
+  getDisasterSlugFromEvent("Lightning")
+)
+
+console.log(
+  getDisasterSlugFromEvent("Earthquake")
+)
+
+console.log(
+  getDisasterSlugFromEvent("Cyclone")
+)

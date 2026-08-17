@@ -1,4 +1,5 @@
 const DisasterModel = require("../model/disaster/disaster.model")
+const { getDisasterBySlug } = require("../services/disaster.service")
 
 
 /* =====================================================
@@ -50,10 +51,7 @@ const getDisasterBySlugController = async (req, res) => {
   try {
     const { slug } = req.params
 
-    const disaster = await DisasterModel.findOne({
-      slug,
-      isPublished: true,
-    })
+    const disaster = await getDisasterBySlug(slug)
 
     if (!disaster) {
       return res.status(404).json({

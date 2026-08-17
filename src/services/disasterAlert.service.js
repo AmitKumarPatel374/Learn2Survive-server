@@ -40,7 +40,6 @@ const getGovernmentAlerts = async (state) => {
       detailsUrl: item.link[0],
     }))
 
-    console.dir(alerts, { depth: null })
 
     return alerts
   } catch (error) {
@@ -86,7 +85,6 @@ const getAlertDetails = async (detailsUrl) => {
       instruction: info["cap:instruction"][0],
     }
 
-    console.dir(alertDetails, { depth: null })
 
     return alertDetails
   } catch (error) {
