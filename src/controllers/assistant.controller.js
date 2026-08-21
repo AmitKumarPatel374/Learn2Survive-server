@@ -7,12 +7,9 @@ const {
 
 const { getDisasterBySlug } = require("../services/disaster.service");
 
-const { getDisasterSlugFromEvent } =
-  require("../utils/disasterClassifier");
+const { getDisasterSlugFromEvent } = require("../utils/disasterClassifier");
 
-const { buildDisasterContext } =
-  require("../utils/disasterContext");
-let hasActiveAlert = false;
+const { buildDisasterContext } = require("../utils/disasterContext");
 const chatWithAI = async (req, res) => {
   try {
     const { message } = req.body;
@@ -23,6 +20,7 @@ const chatWithAI = async (req, res) => {
       });
     }
 
+    let hasActiveAlert = false;
     const state = req.user.location?.state;
     const district = req.user.location?.district;
 
@@ -40,7 +38,7 @@ const chatWithAI = async (req, res) => {
         const isActive = new Date(details.expires) > new Date();
 
         if (isForDistrict && isActive) {
-              hasActiveAlert = true;
+          hasActiveAlert = true;
           const disasterSlug = getDisasterSlugFromEvent(details.event);
 
           alertContext = `
@@ -59,9 +57,9 @@ Source: ${details.sender}
           if (disasterSlug) {
             const disaster = await getDisasterBySlug(disasterSlug);
 
-           if (disaster) {
-  disasterContext = buildDisasterContext(disaster)
-}
+            if (disaster) {
+              disasterContext = buildDisasterContext(disaster);
+            }
           }
 
           break;
@@ -69,7 +67,7 @@ Source: ${details.sender}
       }
     }
 
- const prompt = `
+    const prompt = `
 Current Learn2Survive User:
 
 State: ${state || "Not available"}
@@ -158,10 +156,11 @@ IMPORTANT INSTRUCTIONS:
    for disaster preparedness and emergency-safety questions.
 `;
 
-    const response = await generateAIResponse(prompt);
+    const aiResponse = await generateAIResponse(prompt);
 
     return res.status(200).json({
-      response,
+      response: aiResponse.response,
+      relatedQuestions: aiResponse.relatedQuestions,
     });
   } catch (error) {
     console.error("AI chat controller error:", error);
