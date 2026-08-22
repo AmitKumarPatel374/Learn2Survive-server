@@ -1,10 +1,49 @@
 const xml2js = require("xml2js")
 
 const SACHET_STATE_FEEDS = {
-  "madhya pradesh":
-    "https://sachet.ndma.gov.in/cap_public_website/rss/rss_madhya.xml",
+  // States
+  "andhra pradesh": "https://sachet.ndma.gov.in/cap_public_website/rss/rss_andhra.xml",
+  "arunachal pradesh": "https://sachet.ndma.gov.in/cap_public_website/rss/rss_arunachal.xml",
+  assam: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_assam.xml",
+  bihar: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_bihar.xml",
+  chhattisgarh: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_chhattisgarh.xml",
+  goa: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_goa.xml",
+  gujarat: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_gujarat.xml",
+  haryana: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_haryana.xml",
+  "himachal pradesh": "https://sachet.ndma.gov.in/cap_public_website/rss/rss_himachal.xml",
+  jharkhand: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_jharkhand.xml",
+  karnataka: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_karnataka.xml",
+  kerala: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_kerala.xml",
 
-  // We will add the remaining states here.
+  "madhya pradesh": "https://sachet.ndma.gov.in/cap_public_website/rss/rss_madhya.xml",
+
+  maharashtra: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_maharashtra.xml",
+  manipur: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_manipur.xml",
+  meghalaya: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_meghalaya.xml",
+  mizoram: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_mizoram.xml",
+  nagaland: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_nagaland.xml",
+  odisha: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_odisha.xml",
+  punjab: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_punjab.xml",
+  rajasthan: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_rajasthan.xml",
+  sikkim: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_sikkim.xml",
+  "tamil nadu": "https://sachet.ndma.gov.in/cap_public_website/rss/rss_tamil.xml",
+  telangana: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_telangana.xml",
+  tripura: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_tripura.xml",
+  "uttar pradesh": "https://sachet.ndma.gov.in/cap_public_website/rss/rss_uttar.xml",
+  uttarakhand: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_uttarakhand.xml",
+  "west bengal": "https://sachet.ndma.gov.in/cap_public_website/rss/rss_west.xml",
+
+  // Union Territories
+  "andaman and nicobar islands":
+    "https://sachet.ndma.gov.in/cap_public_website/rss/rss_andaman.xml",
+  chandigarh: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_chhattisgarh.xml",
+  "dadra and nagar haveli and daman and diu":
+    "https://sachet.ndma.gov.in/cap_public_website/rss/rss_dadra.xml",
+  delhi: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_delhi.xml",
+  "jammu and kashmir": "https://sachet.ndma.gov.in/cap_public_website/rss/rss_jammu.xml",
+  ladakh: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_ladakh.xml",
+  lakshadweep: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_lakshadweep.xml",
+  puducherry: "https://sachet.ndma.gov.in/cap_public_website/rss/rss_puducherry.xml",
 }
 
 const getGovernmentAlerts = async (state) => {
@@ -14,9 +53,7 @@ const getGovernmentAlerts = async (state) => {
     const url = SACHET_STATE_FEEDS[normalizedState]
 
     if (!url) {
-      throw new Error(
-        `SACHET feed not configured for state: ${state}`
-      )
+      throw new Error(`SACHET feed not configured for state: ${state}`)
     }
 
     const response = await fetch(url)
@@ -39,7 +76,6 @@ const getGovernmentAlerts = async (state) => {
       publishedAt: item.pubDate[0],
       detailsUrl: item.link[0],
     }))
-
 
     return alerts
   } catch (error) {
@@ -84,7 +120,6 @@ const getAlertDetails = async (detailsUrl) => {
       description: info["cap:description"][0],
       instruction: info["cap:instruction"][0],
     }
-
 
     return alertDetails
   } catch (error) {
