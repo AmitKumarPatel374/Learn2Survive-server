@@ -26,9 +26,9 @@ const quizSchema = new mongoose.Schema(
       required: true,
       enum: [
         "Preparedness",
-        "Response",
+        "Safety",
         "Recovery",
-        "Mitigation",
+        "Emergency Response",
         "Awareness",
         "General",
       ],
@@ -62,7 +62,7 @@ const quizSchema = new mongoose.Schema(
 
     isPublished: {
       type: Boolean,
-      default: false,
+      default: true,
       index: true,
     },
   },
