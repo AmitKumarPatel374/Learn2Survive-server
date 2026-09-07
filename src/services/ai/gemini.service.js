@@ -98,14 +98,46 @@ ${LEARN2SURVIVE_SYSTEM_PROMPT}
 
 User Question:
 ${prompt}
+
+Return the answer in ONLY valid JSON using this exact structure:
+
+{
+  "response": "Your complete answer here",
+  "relatedQuestions": [
+    "Related question 1",
+    "Related question 2",
+    "Related question 3"
+  ]
+}
+
+Rules for relatedQuestions:
+
+- Generate exactly 3 related questions.
+- Questions must be directly related to the user's question.
+- Questions should help the user continue learning about
+  disaster safety or preparedness.
+- Keep each question short and natural.
+- Do not repeat the user's question.
+- Do not include answers inside relatedQuestions.
+- Return ONLY valid JSON.
 `;
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: finalPrompt,
+      config: {
+        responseMimeType: "application/json",
+      },
     });
 
-    return response.text;
+    let text = response.text;
+
+    text = text
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    return JSON.parse(text);
   } catch (error) {
     console.error("Gemini AI Assistant Error:", error);
     throw new Error("Failed to generate AI response");
