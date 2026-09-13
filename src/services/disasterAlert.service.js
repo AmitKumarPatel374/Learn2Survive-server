@@ -97,7 +97,18 @@ const getAlertDetails = async (detailsUrl) => {
     const parsedData = await xml2js.parseStringPromise(xmlData)
 
     const alert = parsedData["cap:alert"]
-    const info = alert["cap:info"][0]
+
+    if (!alert) {
+      console.error("Unexpected SACHET XML response:", parsedData)
+      throw new Error("Invalid SACHET alert XML format")
+    }
+
+    const info = alert["cap:info"]?.[0]
+
+    if (!info) {
+      console.error("SACHET alert info missing:", parsedData)
+      throw new Error("SACHET alert info not found")
+    }
 
     const alertDetails = {
       id: alert["cap:identifier"][0],
