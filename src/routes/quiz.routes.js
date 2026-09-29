@@ -16,12 +16,14 @@ const {
   getQuizById,
   updateTimer,
 } = require("../controllers/quiz/studentQuiz.controller")
+const { getRecommendedQuizController } = require("../controllers/quiz/quizRecommendation.controller")
 const router = express.Router()
 
 // Add your authentication/authorization middleware here
 router.get("/", authMiddleware, getQuizzes)
 router.post("/generate-quiz", authMiddleware, generateQuiz)
 router.get("/history", authMiddleware, getQuizHistory)
+router.get("/recommended", authMiddleware, getRecommendedQuizController)
 router.get("/:quizId", authMiddleware, getQuizById)
 router.post("/:quizId/start", authMiddleware, startQuiz)
 router.post("/:attemptId/timer", authMiddleware, updateTimer)
