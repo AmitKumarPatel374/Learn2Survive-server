@@ -35,6 +35,11 @@ const GameSchema = new Schema({
         required: true
     },
 
+    introImage: {
+        type: String,
+        required: true
+    },
+
     isPublished: {
         type: Boolean,
         default: true
