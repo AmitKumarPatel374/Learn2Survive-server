@@ -8,6 +8,11 @@ const GameSchema = new Schema({
         required: true
     },
 
+    description: {
+        type: String,
+        required:true
+    },
+
     disaster: {
         type: Schema.Types.ObjectId,
         ref: "Disaster",

@@ -73,7 +73,7 @@ const userSchema = new mongoose.Schema(
       city: String,
 
       pinCode: String,
-      
+
       coordinates: {
         latitude: Number,
         longitude: Number,
@@ -127,6 +127,42 @@ const userSchema = new mongoose.Schema(
         },
       },
     },
+
+    // Game Progress
+    gameProgress: [
+      {
+        game: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Game",
+          required: true,
+        },
+
+        bestScore: {
+          type: Number,
+          default: 0,
+        },
+
+        lastScore: {
+          type: Number,
+          default: 0,
+        },
+
+        lastBestScore: {
+          type: Number,
+          default:0
+        },
+
+        attempts: {
+          type: Number,
+          default: 0,
+        },
+
+        lastPlayedAt: {
+          type: Date,
+          default: null,
+        },
+      },
+    ],
 
     role: {
       type: String,
