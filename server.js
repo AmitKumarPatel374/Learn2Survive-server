@@ -13,6 +13,7 @@ const emergencyContactRoutes=require("./src/routes/emergency.routes")
 const weatherRoutes=require("./src/routes/weather.routes")
 const disasterAlertRoutes=require("./src/routes/disasterAlert.routes")
 const assistantRoutes=require("./src/routes/assistant.route")
+const gameRoutes = require("./src/routes/game.routes")
 
 require("./src/services/googleOauth.service")
 const session = require("express-session")
@@ -89,6 +90,7 @@ app.use("/api/emergency", emergencyContactRoutes);
 app.use("/api/weather", weatherRoutes)
 app.use("/api/disaster-alert", disasterAlertRoutes)
 app.use("/api/assistant", assistantRoutes)
+app.use("/api/simulation",gameRoutes)
 
 let port = process.env.PORT || 5000
 
