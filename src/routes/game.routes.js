@@ -1,9 +1,22 @@
-const express = require('express');
-const { getAllGamesController } = require('../controllers/game.controller');
-const { route } = require('./disaster.routes');
+const express = require("express");
+
+const {
+    getAllGamesController,
+    getGameByIdController,
+    getScoreController,
+    saveScoreController,
+} = require("../controllers/game.controller");
+
+const authMiddleware = require("../middlewares/auth.middleware");
 
 const router = express.Router();
 
-router.get("/",getAllGamesController)
+// Public routes
+router.get("/", getAllGamesController);
+router.get("/:id", getGameByIdController);
 
-module.exports = router
+// Protected routes
+router.get("/score/:gameId", authMiddleware, getScoreController);
+router.post("/score", authMiddleware, saveScoreController);
+
+module.exports = router;
